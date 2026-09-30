@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NEET PG 2025 Seat Predictor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#eceff2;--card:#fff;--ink:#12202b;--mu:#586975;--line:#d3dae0;--acc:#0b5f73;--accfg:#fff;
+--s:#0d7a48;--sb:#daf2e5;--m:#8f5b00;--mb:#fbeac4;--r:#b0261d;--rb:#f9d9d5;--u:#586975;--ub:#e3e7ea}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0d141a;--card:#16212a;--ink:#e6edf2;--mu:#93a3b0;--line:#27353f;--acc:#5cc2d6;--accfg:#08222a;--s:#5fd39a;--sb:#12352a;--m:#e7b75a;--mb:#3a2e12;--r:#f19a93;--rb:#3f1d1a;--u:#93a3b0;--ub:#222d35}}
+:root[data-theme=dark]{--bg:#0d141a;--card:#16212a;--ink:#e6edf2;--mu:#93a3b0;--line:#27353f;--acc:#5cc2d6;--accfg:#08222a;--s:#5fd39a;--sb:#12352a;--m:#e7b75a;--mb:#3a2e12;--r:#f19a93;--rb:#3f1d1a;--u:#93a3b0;--ub:#222d35}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;font-variant-numeric:tabular-nums}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.mu{color:var(--mu)}.sm{font-size:.75rem}
+.in{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.5rem .65rem;color:var(--ink);font:inherit;width:100%}
+.in:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:.2rem .65rem;font-size:.78rem;background:transparent;color:var(--ink)}
+.chip.on{background:var(--acc);color:var(--accfg);border-color:var(--acc)}
+.btn{border:1px solid var(--line);border-radius:8px;padding:.45rem .7rem;font-size:.85rem;background:var(--card);color:var(--ink)}
+.big{font-size:2.6rem;font-weight:700;line-height:1;letter-spacing:-.02em;background:transparent;border:0;border-bottom:2px solid var(--acc);color:var(--ink);width:100%;max-width:11rem;font-family:inherit;font-variant-numeric:tabular-nums}
+.big:focus-visible{outline:none;border-bottom-color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.g{display:grid;gap:.4rem .6rem;grid-template-columns:repeat(6,1fr);align-items:start}
+.row{padding:.8rem}.row+.row{border-top:1px solid var(--line)}
+.a{grid-column:1/-1;order:1}.b{grid-column:1/5;order:2}.h{grid-column:5/-1;order:3;justify-self:end}
+.q{grid-column:1/4;order:4}.k{grid-column:4/-1;order:5}.r{grid-column:span 2;order:6}
+.rl{display:block;font-size:.68rem;color:var(--mu)}
+.nm{font-weight:600;line-height:1.25}
+.up{color:var(--m);font-style:normal;font-size:.7rem;margin-left:.2rem}.dn{color:var(--s);font-style:normal;font-size:.7rem;margin-left:.2rem}
+.bd{display:inline-block;border-radius:6px;padding:.2rem .5rem;font-size:.75rem;font-weight:600;white-space:nowrap}
+.t0{background:var(--sb);color:var(--s)}.t1{background:var(--mb);color:var(--m)}.t2{background:var(--rb);color:var(--r)}.t3{background:var(--ub);color:var(--u)}
+.hd{display:none}
+@media(min-width:1024px){
+.g{grid-template-columns:minmax(0,2.6fr) minmax(0,1.6fr) minmax(0,.9fr) minmax(0,.6fr) repeat(3,minmax(0,.85fr)) minmax(0,.95fr)}
+.a,.b,.h,.q,.k,.r{grid-column:auto;order:0;justify-self:auto}.rl{display:none}
+.hd{display:grid;padding:.6rem .8rem;font-size:.72rem;color:var(--mu);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);background:var(--card);z-index:5;border-radius:10px 10px 0 0}
+.hd button{all:unset;cursor:pointer}.hd button:hover{color:var(--ink)}}
+.sw{appearance:none;width:2.4rem;height:1.35rem;border-radius:99px;background:var(--line);position:relative;cursor:pointer;flex:none}
+.sw:checked{background:var(--acc)}.sw::after{content:'';position:absolute;top:.15rem;left:.15rem;width:1.05rem;height:1.05rem;border-radius:50%;background:#fff;transition:transform .15s}
+.sw:checked::after{transform:translateX(1.05rem)}
+@media(prefers-reduced-motion:reduce){.sw::after{transition:none}}
+</style>
+</head>
+<body>
+<div class="max-w-[1400px] mx-auto px-3 sm:px-5 py-4">
+<header class="flex flex-wrap items-end justify-between gap-4 mb-4">
+ <div class="min-w-0">
+  <h1 class="text-xl sm:text-2xl font-bold">NEET PG 2025 seat predictor</h1>
+  <p class="mu sm mt-1 max-w-xl">Built from the official Round 1, 2 and 3 allotment lists. Enter your all-India rank to see which seats last year's cutoffs put in reach.</p>
+ </div>
+ <div class="flex items-end gap-4">
+  <label class="block"><span class="mu sm">Your AIR</span><input id="air" class="big" type="number" inputmode="numeric" min="1" max="300000"></label>
+  <button id="fbtn" class="btn lg:hidden" aria-expanded="false">Filters</button>
+ </div>
+</header>
+
+<section id="met" class="grid grid-cols-2 lg:grid-cols-4 gap-2 mb-4" aria-live="polite"></section>
+
+<div class="flex flex-col lg:flex-row gap-4 items-start">
+ <aside id="side" class="card p-4 w-full lg:w-[330px] lg:flex-none hidden lg:block lg:sticky lg:top-3 space-y-4 max-h-none lg:max-h-[calc(100vh-1.5rem)] overflow-auto">
+  <div><label class="mu sm block mb-1" for="sl">Rank slider</label><input id="sl" type="range" min="0" max="100" step=".2"></div>
+  <div class="grid grid-cols-2 gap-2">
+   <div><label class="mu sm block mb-1" for="cat">Category</label><select id="cat" class="in"><option value="Open">UR / General</option><option>OBC</option><option>EWS</option><option>SC</option><option>ST</option></select></div>
+   <div class="flex items-end"><label class="flex items-center gap-2 text-sm pb-2"><input id="pwd" type="checkbox" class="w-4 h-4" style="accent-color:var(--acc)"> PwD</label></div>
+  </div>
+  <div><div class="mu sm mb-1">Course type</div><div id="deg" class="flex flex-wrap gap-1.5"></div></div>
+  <div><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">The lists contain no state-quota seats.</p></div>
+  <div><div class="mu sm mb-1">Specialties <span id="spn"></span></div><div id="spp"></div></div>
+  <div><div class="mu sm mb-1">States <span id="stn"></span></div><div id="stp"></div></div>
+  <div class="space-y-2 pt-1 border-t" style="border-color:var(--line)">
+   <label class="flex items-center justify-between gap-3 text-sm pt-3"><span>Show only safe choices</span><input id="safe" type="checkbox" class="sw"></label>
+   <label class="flex items-center justify-between gap-3 text-sm"><span>Include unlikely seats</span><input id="unl" type="checkbox" class="sw"></label>
+   <button id="rst" class="btn w-full">Reset filters</button>
+  </div>
+ </aside>
+
+ <main class="flex-1 min-w-0 w-full">
+  <div class="flex flex-wrap gap-2 mb-3">
+   <input id="q" class="in flex-1 min-w-[12rem]" type="search" placeholder="Search college or city" aria-label="Search college or city">
+   <select id="srt" class="in w-auto" aria-label="Sort by"><option value="cr">Sort: closing rank</option><option value="name">Sort: college name</option><option value="chance">Sort: admission chance</option></select>
+   <button id="dir" class="btn" aria-label="Toggle sort direction">Asc</button>
+  </div>
+  <p class="mu sm mb-2">Closing rank (CR) is the last rank allotted that round; OR is the first. <i class="up">▲</i> cutoff rose versus the previous round (seat got easier), <i class="dn">▼</i> it tightened.</p>
+  <div class="card overflow-hidden">
+   <div class="hd g"><button data-k="name">College</button><span>Course</span><span>Quota</span><span>Category</span><span>R1 cutoff</span><span>R2 cutoff</span><span>R3 cutoff</span><button data-k="chance">Chance</button></div>
+   <div id="res"></div>
+  </div>
+  <div class="text-center mt-3"><button id="more" class="btn">Show more</button></div>
+  <details class="card p-4 mt-5 text-sm">
+   <summary class="cursor-pointer font-semibold">Data integrity and method</summary>
+   <div id="meta" class="mt-3 space-y-2 mu"></div>
+  </details>
+ </main>
+</div>
+</div>
+<script>
+const D=/*DATA*/null;
+const $=s=>document.querySelector(s),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'),num=n=>n?n.toLocaleString('en-IN'):'–';
+const QG={AMU:'Central Uni',BHU:'Central Uni','Delhi Univ':'Central Uni','IP Univ':'Central Uni','Jain Minority':'Minority','Muslim Minority':'Minority'};
+const QL=['All India','DNB','Deemed/Paid','Central Uni','NRI','Armed Forces','Minority'],DG=['All','MD/MS','DNB','Diploma'];
+const dg=d=>d==='DNB'?'DNB':/Diploma/.test(d)?'Diploma':'MD/MS';
+const R=D.rows.map(r=>{const I=D.inst[r[0]],C=D.course[r[1]],cr=[r[5],r[8],r[11]],or=[r[4],r[7],r[10]];
+ return{i:I[0],st:I[1],ad:I[2],hay:(I[0]+' '+I[2]).toLowerCase(),deg:dg(C[0]),sp:C[1],cn:C[0]+' '+C[1],qr:D.quota[r[2]],q:QG[D.quota[r[2]]]||D.quota[r[2]],cat:D.cat[r[3]],cr,or,CR:Math.max(...cr),t:0,p:0}});
+const SP=[...new Set(R.map(x=>x.sp))].sort(),ST=[...new Set(R.map(x=>x.st))].sort();
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,q:'',k:'cr',d:1,n:60});
+let S=init();
+const seat=c=>{const pw=c.endsWith('PwD'),b=c.replace(' PwD','');return(!pw||S.pwd)&&(b==='Open'||b===S.cat)};
+const chance=r=>Math.round(r<=.9?85+Math.min(14,(.9-r)/.9*20):r<=1?85-(r-.9)*350:r<=1.1?50-(r-1)*400:Math.max(1,10-(r-1.1)*40));
+const TL=['Safe','Moderate','Risk','Unlikely'];
+function cell(x,i){const c=x.cr[i];if(!c)return`<div class="r"><span class="rl">R${i+1}</span><span class="mu">–</span></div>`;let a='';
+ for(let j=i-1;j>=0;j--)if(x.cr[j]){a=c>x.cr[j]?'<i class="up" title="Cutoff rose">▲</i>':c<x.cr[j]?'<i class="dn" title="Cutoff tightened">▼</i>':'';break}
+ return`<div class="r"><span class="rl">R${i+1} cutoff</span><b>${num(c)}</b>${a}<div class="mu sm">OR ${num(x.or[i])}</div></div>`}
+function go(){
+ const s=S,q=s.q.trim().toLowerCase(),L=[],n=[0,0,0,0];
+ for(const x of R){
+  if(!seat(x.cat)||!s.quotas.has(x.q)||(s.deg!=='All'&&x.deg!==s.deg)||(s.sp.size&&!s.sp.has(x.sp))||(s.st.size&&!s.st.has(x.st))||(q&&!x.hay.includes(q)))continue;
+  const r=s.air/x.CR;x.t=r<=.9?0:r<=1?1:r<=1.1?2:3;x.p=chance(r);n[x.t]++;L.push(x)}
+ let best=null;for(const x of L)if(x.t<2&&(!best||x.CR<best.CR))best=x;
+ const tile=(l,v,sub)=>`<div class="card p-3 min-w-0"><div class="mu sm">${l}</div><div class="text-2xl font-bold mt-0.5">${v}</div>${sub?`<div class="mu sm truncate">${sub}</div>`:''}</div>`;
+ $('#met').innerHTML=tile('Total matches',(n[0]+n[1]+n[2]).toLocaleString('en-IN'),'with your filters')+tile('High chance',n[0].toLocaleString('en-IN'),'rank within 90% of cutoff')+tile('Borderline',n[1].toLocaleString('en-IN'),'90 to 100% of cutoff')
+  +`<div class="card p-3 col-span-2 lg:col-span-1 min-w-0"><div class="mu sm">Best available institute</div>${best?`<div class="font-semibold leading-tight mt-0.5 truncate">${esc(best.i)}</div><div class="mu sm truncate">${esc(best.cn)}, CR ${num(best.CR)}</div>`:'<div class="text-2xl font-bold">–</div>'}</div>`;
+ let V=L.filter(x=>s.safe?x.t===0:s.unl||x.t<3);
+ const f={cr:(a,b)=>a.CR-b.CR,name:(a,b)=>a.i.localeCompare(b.i)||a.CR-b.CR,chance:(a,b)=>b.p-a.p||a.CR-b.CR}[s.k];
+ V.sort((a,b)=>f(a,b)*s.d);
+ $('#res').innerHTML=V.length?V.slice(0,s.n).map(x=>`<article class="row g"><div class="a min-w-0"><div class="nm">${esc(x.i)}</div><div class="mu sm">${esc(x.st)}${x.ad?', '+esc(x.ad):''}</div></div>
+  <div class="b text-sm">${esc(x.cn)}</div><div class="q text-sm"><span class="rl">Quota</span>${esc(x.qr)}</div><div class="k text-sm"><span class="rl">Category</span>${esc(x.cat)}</div>
+  ${cell(x,0)}${cell(x,1)}${cell(x,2)}<div class="h"><span class="bd t${x.t}" title="Estimated chance, based on 2025 cutoffs">${TL[x.t]} ${x.p}%</span></div></article>`).join(''):'<p class="p-6 mu text-center">No seats match. Try widening quota, specialty or state filters, or include unlikely seats.</p>';
+ $('#more').style.display=V.length>s.n?'':'none';$('#more').textContent=`Show more (${V.length-s.n} left)`;
+ $('#spn').textContent=s.sp.size?`(${s.sp.size} selected)`:'(any)';$('#stn').textContent=s.st.size?`(${s.st.size} selected)`:'(any)';
+ $('#dir').textContent=s.d>0?'Asc':'Desc';$('#srt').value=s.k}
+function picker(el,items,set){el.innerHTML='<input class="in mb-2" placeholder="Filter list" aria-label="Filter list"><div class="flex flex-wrap gap-1.5 max-h-40 overflow-auto"></div>';
+ const inp=el.firstChild,box=el.lastChild,draw=()=>{const t=inp.value.toLowerCase();box.innerHTML=items.filter(x=>x.toLowerCase().includes(t)).map(x=>`<button class="chip ${set.has(x)?'on':''}" data-v="${esc(x)}">${esc(x)}</button>`).join('')};
+ inp.oninput=draw;box.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;const k=v.dataset.v;set.has(k)?set.delete(k):set.add(k);S.n=60;draw();go()};el.redraw=draw;draw()}
+function chips(el,items,on,fn){el.innerHTML=items.map(x=>`<button class="chip ${on(x)?'on':''}" data-v="${x}">${x}</button>`).join('');el.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;fn(v.dataset.v);S.n=60;chips(el,items,on,fn);go()}}
+const lg=v=>Math.round(Math.exp(v/100*Math.log(250000)));
+function ui(){
+ $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#cat').value=S.cat;$('#pwd').checked=S.pwd;$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#q').value=S.q;
+ chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
+ picker($('#spp'),SP,S.sp);picker($('#stp'),ST,S.st);go()}
+const m=D.meta,fm=n=>n.toLocaleString('en-IN');
+$('#meta').innerHTML=`<p>Rows extracted from the PDFs (lines parsed / seat allotments): Round 1 ${fm(m.r1[0])} / ${fm(m.r1[1])}; Round 2 ${fm(m.r2[0])} / ${fm(m.r2[1])}; Round 3 ${fm(m.r3[0])} / ${fm(m.r3[1])}. Rounds 2 and 3 also list candidates who kept, lost or did not take up a seat, so only lines carrying a new allotment count towards cutoffs.</p>
+<p>${fm(m.inst)} unique institutes, ${m.sp} specialties (${m.course} degree and course variants after merging spelling and line-break differences), ${fm(m.combos)} unique institute, course, quota and seat-category combinations.</p>
+<p>Method: OR and CR come from the lowest and highest AIR allotted in each round to a combination. The prediction uses the highest closing rank across the three rounds (normally Round 3). Safe means your AIR is at most 90% of that rank, Moderate 90 to 100%, Risk up to 10% above it, and Unlikely beyond that. A candidate can take Open seats and seats of their own category. Percentages are a heuristic from a single year, not a guarantee. Verify against the official MCC bulletin before choice filling.</p>`;
+$('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));$('#sl').value=Math.log(S.air)/Math.log(250000)*100;S.n=60;go()};
+$('#sl').oninput=e=>{S.air=lg(+e.target.value);$('#air').value=S.air;S.n=60;go()};
+$('#cat').onchange=e=>{S.cat=e.target.value;go()};$('#pwd').onchange=e=>{S.pwd=e.target.checked;go()};
+$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};
+$('#q').oninput=e=>{S.q=e.target.value;S.n=60;go()};$('#srt').onchange=e=>{S.k=e.target.value;S.d=1;go()};
+$('#dir').onclick=()=>{S.d*=-1;go()};$('#more').onclick=()=>{S.n+=100;go()};
+$('#rst').onclick=()=>{S=init();ui()};
+$('#fbtn').onclick=e=>{const h=$('#side').classList.toggle('hidden');e.target.setAttribute('aria-expanded',!h)};
+document.querySelectorAll('.hd [data-k]').forEach(b=>b.onclick=()=>{const k=b.dataset.k;S.k===k?S.d*=-1:(S.k=k,S.d=1);go()});
+ui();
+</script>
+</body>
+</html>
