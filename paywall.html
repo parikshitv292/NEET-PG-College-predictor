@@ -105,6 +105,7 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
  <div class="lay">
   <aside id="side" class="card">
    <div><div class="mu sm mb-1">Course type</div><div id="deg" class="flex flex-wrap gap-1.5"></div></div>
+   <div><div class="mu sm mb-1">Institute type</div><div id="own" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Hospitals with only DNB seats are classified from their names, so a few may be wrong.</p></div>
    <div><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">The lists contain no state-quota seats.</p></div>
    <div><div class="mu sm mb-1">Specialties <span id="spn"></span></div><div id="spp"></div></div>
    <div><div class="mu sm mb-1">States <span id="stn"></span></div><div id="stp"></div></div>
@@ -140,7 +141,7 @@ const QL=['All India','DNB','Deemed/Paid','Central Uni','NRI','Armed Forces','Mi
 const lb=x=>x==='Open'?'UR':x,SP=M.sp,ST=M.st,TL=['High','Moderate','Low','Unlikely'];
 let F=new Map();try{F=new Map(JSON.parse(localStorage.getItem('nps2')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps2',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:-1,fav:false,q:'',k:'cr',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'cr',d:1,n:30});
 let S=init(),U=null,PAID=false,UNTIL=null,LAST=new Map(),T=0,seq=0,pend=false,step=0,mail='';
 const cp=(x,qs)=>{const n=qs.length;if(x<=qs[0])return Math.min(99,Math.round(95+4*(1-x/qs[0])));if(x>=qs[n-1])return Math.max(1,Math.round(5*qs[n-1]/x));for(let i=0;i<n-1;i++)if(x<qs[i+1]){const f=(x-qs[i])/((qs[i+1]-qs[i])||1);return Math.round(100*(1-(.05*(i+1)+.05*f)))}return 1};
 const DR=1.12,dr=()=>S.drift?DR:1;
@@ -151,13 +152,13 @@ function rc(x,i,mx){const c=x.cr[i];if(!c)return`<div class="rn"><span class="mu
  return`<div class="rn"><span class="mu sm">R${i+1} cutoff</span><div><b>${fm(c)}</b>${a}</div><div class="tr"><u style="width:${Math.round(c/mx*100)}%"></u></div><span class="mu sm">OR ${num(x.or[i])}</span></div>`}
 function card(x){const mx=Math.max(...x.cr),d=S.air-x.CR;
  return`<article class="card rc t${x.t}"><div class="chg"><div class="ring" style="--p:${x.p}"><b>${x.p}%</b></div>${TL[x.t]}</div>
- <div class="min-w-0"><div class="nm">${esc(x.i)}</div><div class="mu sm">${esc(x.st)}${x.ad?', '+esc(x.ad):''}</div><div class="tg"><span class="cs">${esc(x.cn)}</span><span>${esc(x.qr)}</span><span>${esc(x.cat)}</span></div></div>
+ <div class="min-w-0"><div class="nm">${esc(x.i)}</div><div class="mu sm">${esc(x.st)}${x.ad?', '+esc(x.ad):''}</div><div class="tg"><span class="cs">${esc(x.cn)}</span><span>${esc(x.qr)}</span><span>${esc(x.cat)}</span>${x.own?`<span>${esc(x.own)}</span>`:''}</div></div>
  <button class="fav ${F.has(x.id)?'on':''}" data-f="${x.id}" aria-label="Shortlist this seat" aria-pressed="${F.has(x.id)}">★</button>
  <div class="rd">${rc(x,0,mx)}${rc(x,1,mx)}${rc(x,2,mx)}</div>
  <div class="ms">${d<=0?`Your rank is <b>${fm(-d)}</b> places inside the last close (${fm(x.CR)}).`:`Your rank is <b>${fm(d)}</b> places beyond the last close (${fm(x.CR)}).`}<br>${yoy(x)}</div></article>`}
 const go=()=>{clearTimeout(T);T=setTimeout(load,220)};
 async function load(){const my=++seq;
- const{data,error}=await sb.rpc('predict',{p_air:S.air,p_cat:S.cat,p_pwd:S.pwd,p_deg:S.deg,p_quotas:[...S.quotas],p_sp:[...S.sp],p_st:[...S.st],p_q:S.q.trim(),p_sort:S.k,p_dir:S.d,p_tier:S.tier,p_safe:S.safe,p_unl:S.unl,p_drift:dr(),p_off:0,p_lim:S.n});
+ const{data,error}=await sb.rpc('predict',{p_air:S.air,p_cat:S.cat,p_pwd:S.pwd,p_deg:S.deg,p_own:S.own,p_quotas:[...S.quotas],p_sp:[...S.sp],p_st:[...S.st],p_q:S.q.trim(),p_sort:S.k,p_dir:S.d,p_tier:S.tier,p_safe:S.safe,p_unl:S.unl,p_drift:dr(),p_off:0,p_lim:S.n});
  if(my!==seq)return;
  if(error){$('#res').innerHTML=`<div class="card p-6 text-center mu">Could not load results. Check your connection and try again.</div>`;return}
  draw(data)}
@@ -180,7 +181,7 @@ function picker(el,items,set){el.innerHTML='<input class="in mb-2" placeholder="
 function chips(el,items,on,fn){el.innerHTML=items.map(x=>`<button class="chip ${on(x)?'on':''}" data-v="${x}">${lb(x)}</button>`).join('');el.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;fn(v.dataset.v);S.n=30;chips(el,items,on,fn);go()}}
 const lg=v=>Math.round(Math.exp(v/100*Math.log(250000)));
 function ui(){$('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
- chips($('#cat'),CT,x=>S.cat===x,x=>S.cat=x);chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
+ chips($('#cat'),CT,x=>S.cat===x,x=>S.cat=x);chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#own'),['All','Government','Private'],x=>S.own===x,x=>S.own=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
  picker($('#spp'),SP,S.sp);picker($('#stp'),ST,S.st);load()}
 /* account, login and payment */
 const toast=t=>{const e=$('#toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',3500)};
