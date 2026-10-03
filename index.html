@@ -110,7 +110,7 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
   <main class="res">
    <div class="tb">
     <input id="q" class="in" style="flex:1 1 12rem;width:auto" type="search" placeholder="Search college or city" aria-label="Search college or city">
-    <select id="srt" class="in" style="width:auto" aria-label="Sort by"><option value="cr">Closing rank</option><option value="name">College name</option><option value="chance">Admission chance</option></select>
+    <select id="srt" class="in" style="width:auto" aria-label="Sort by"><option value="type">Course type: MD/MS, DNB, Diploma</option><option value="cr">Closing rank</option><option value="name">College name</option><option value="chance">Admission chance</option></select>
     <button id="dir" class="btn" aria-label="Toggle sort direction">Asc</button>
     <button id="favb" class="btn">★ Shortlist 0</button>
     <button id="cp" class="btn" style="display:none">Copy list</button>
@@ -137,7 +137,7 @@ const R=D.rows.map((r,id)=>{const I=D.inst[r[0]],C=D.course[r[1]],cr=[r[5],r[8],
 const SP=[...new Set(R.map(x=>x.sp))].sort(),ST=[...new Set(R.map(x=>x.st))].sort();
 let F=new Set();try{F=new Set(JSON.parse(localStorage.getItem('nps')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'cr',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
 let S=init();
 const seat=c=>{const pw=c.endsWith('PwD'),b=c.replace(' PwD','');return(!pw||S.pwd)&&(b==='Open'||b===S.cat)};
 const cp=(x,qs)=>{const n=qs.length;if(x<=qs[0])return Math.min(99,Math.round(95+4*(1-x/qs[0])));if(x>=qs[n-1])return Math.max(1,Math.round(5*qs[n-1]/x));for(let i=0;i<n-1;i++)if(x<qs[i+1]){const f=(x-qs[i])/((qs[i+1]-qs[i])||1);return Math.round(100*(1-(.05*(i+1)+.05*f)))}return 1};
@@ -165,7 +165,7 @@ function go(){
   <div class="bar">${n.map((v,t)=>`<u class="t${t}" style="width:${v/all*100}%"></u>`).join('')}</div>
   <div class="leg">${TL.map((l,t)=>`<button class="lg t${t} ${s.tier===t?'on':''}" data-t="${t}" aria-pressed="${s.tier===t}"><i></i>${l}<b>${fm(n[t])}</b></button>`).join('')}</div>`;
  let V=L.filter(x=>s.fav?F.has(x.id):s.tier>=0?x.t===s.tier:s.safe?x.t===0:s.unl||x.t<3);
- const f={cr:(a,b)=>a.CR-b.CR,name:(a,b)=>a.i.localeCompare(b.i)||a.CR-b.CR,chance:(a,b)=>b.p-a.p||a.CR-b.CR}[s.k];
+ const TR={'MD/MS':1,DNB:2,Diploma:3},f={type:(a,b)=>TR[a.deg]-TR[b.deg]||a.CR-b.CR,cr:(a,b)=>a.CR-b.CR,name:(a,b)=>a.i.localeCompare(b.i)||a.CR-b.CR,chance:(a,b)=>b.p-a.p||a.CR-b.CR}[s.k];
  V.sort((a,b)=>f(a,b)*s.d);
  $('#res').innerHTML=V.length?V.slice(0,s.n).map(card).join(''):`<div class="card p-8 mu text-center">${s.fav?'No shortlisted seats match your filters. Tap ★ on a seat to save it.':'No seats match. Widen the quota, specialty or state filters, or pick another chance level.'}</div>`;
  $('#more').style.display=V.length>s.n?'':'none';$('#more').textContent=`Show more (${fm(V.length-s.n)} left)`;

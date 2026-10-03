@@ -117,7 +117,7 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
   <main class="res">
    <div class="tb">
     <input id="q" class="in" style="flex:1 1 12rem;width:auto" type="search" placeholder="Search college or city" aria-label="Search college or city">
-    <select id="srt" class="in" style="width:auto" aria-label="Sort by"><option value="cr">Closing rank</option><option value="name">College name</option><option value="chance">Admission chance</option></select>
+    <select id="srt" class="in" style="width:auto" aria-label="Sort by"><option value="type">Course type: MD/MS, DNB, Diploma</option><option value="cr">Closing rank</option><option value="name">College name</option><option value="chance">Admission chance</option></select>
     <button id="dir" class="btn" aria-label="Toggle sort direction">Asc</button>
     <button id="favb" class="btn">★ Shortlist 0</button>
     <button id="cp" class="btn" style="display:none">Copy list</button>
@@ -141,7 +141,7 @@ const QL=['All India','DNB','Deemed/Paid','Central Uni','NRI','Armed Forces','Mi
 const lb=x=>x==='Open'?'UR':x,SP=M.sp,ST=M.st,TL=['High','Moderate','Low','Unlikely'];
 let F=new Map();try{F=new Map(JSON.parse(localStorage.getItem('nps2')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps2',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'cr',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
 let S=init(),U=null,PAID=false,UNTIL=null,LAST=new Map(),T=0,seq=0,pend=false,step=0,mail='';
 const cp=(x,qs)=>{const n=qs.length;if(x<=qs[0])return Math.min(99,Math.round(95+4*(1-x/qs[0])));if(x>=qs[n-1])return Math.max(1,Math.round(5*qs[n-1]/x));for(let i=0;i<n-1;i++)if(x<qs[i+1]){const f=(x-qs[i])/((qs[i+1]-qs[i])||1);return Math.round(100*(1-(.05*(i+1)+.05*f)))}return 1};
 const DR=1.12,dr=()=>S.drift?DR:1;
