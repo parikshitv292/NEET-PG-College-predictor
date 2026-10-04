@@ -93,6 +93,9 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
 .tbl{width:100%;border-collapse:collapse;font-size:.82rem}.tbl th{text-align:left;color:var(--mu);font-weight:600;padding:.55rem;border-bottom:1px solid var(--line);white-space:nowrap}.tbl td{padding:.55rem;border-bottom:1px solid var(--line);vertical-align:middle}.tbl a{color:var(--br);font-weight:600;text-decoration:none}
 .bd{display:inline-block;border-radius:6px;padding:.15rem .5rem;font-size:.75rem;font-weight:700;white-space:nowrap;background:var(--cb);color:var(--c)}
 .nm a{color:inherit;text-decoration:none}.nm a:hover{text-decoration:underline}
+.fm{margin-top:1.2rem;padding:1rem;max-width:46rem;color:var(--ink)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}.fc{display:block;font-size:.72rem;color:var(--mu)}.fc span{display:block;margin-bottom:.25rem;font-weight:600}.fw{grid-column:1/-1}
+@media(min-width:700px){.fgrid{grid-template-columns:repeat(3,1fr)}.fw{grid-column:auto}}
 </style>
 </head>
 <body>
@@ -104,20 +107,21 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
   <div class="flex items-center justify-between gap-3"><div class="logo"><i>+</i> PG Seat Predictor</div><button id="th" class="btn" aria-label="Toggle light or dark theme">Theme</button></div>
   <h1>Which PG seats can your NEET PG rank actually get?</h1>
   <p>Built on the official 2024 and 2025 Round 1, 2 and 3 allotment lists. Every seat gets a chance label based on how closing ranks really moved between the two years.</p>
-  <div class="rp">
-   <label class="sm" style="color:#c9d3ff" for="air">Your all-India rank (AIR)</label>
-   <div class="flex items-end gap-4 flex-wrap"><input id="air" class="big" type="number" inputmode="numeric" min="1" max="300000"><div id="cat" class="flex flex-wrap gap-1.5 pb-1"></div></div>
-   <input id="sl" type="range" min="0" max="100" step=".2" aria-label="Rank slider">
-   <label class="flex items-center gap-2 sm" style="color:#c9d3ff"><input id="pwd" type="checkbox" style="accent-color:var(--sun)"> I have a PwD certificate</label>
-  </div>
-  <div class="rp" id="sq" style="margin-top:.8rem">
-   <div class="flex flex-wrap items-end gap-x-5 gap-y-3">
-    <div style="min-width:12rem"><label class="sm" style="color:#c9d3ff;display:block;margin-bottom:.3rem" for="sqs">State quota (state counselling)</label><select id="sqs" class="in"></select></div>
-    <div id="sqx" class="flex flex-wrap gap-x-5 gap-y-2 sm" style="color:#fff;padding-bottom:.55rem" hidden>
-     <label class="flex items-center gap-2"><input id="is" type="checkbox" style="accent-color:var(--sun)"> In-service candidate (IS)</label>
-     <label class="flex items-center gap-2"><input id="ip" type="checkbox" style="accent-color:var(--sun)"> Institutional preference (IP)</label></div>
+  <div class="fm card">
+   <div class="fgrid">
+    <label class="fc fw"><span>Counselling</span><select id="sqs" class="in"></select></label>
+    <label class="fc fw"><span>NEET PG rank (AIR)</span><input id="air" class="in" style="font-weight:700;font-size:1.05rem" type="number" inputmode="numeric" min="1" max="300000"></label>
+    <label class="fc"><span>Category</span><select id="catS" class="in"></select></label>
+    <label class="fc" id="spw" hidden><span>Special quota (IS / IP)</span><select id="spq" class="in"></select></label>
+    <label class="fc"><span>Quota</span><select id="qs" class="in"></select></label>
+    <label class="fc"><span>Course type</span><select id="dgS" class="in"></select></label>
+    <label class="fc"><span>Preferred course</span><select id="spS" class="in"></select></label>
+    <label class="fc"><span>Institute type</span><select id="owS" class="in"></select></label>
+    <label class="fc"><span>Preferred state</span><select id="stS" class="in"></select></label>
    </div>
-   <p id="sqn" class="sm" style="color:#c9d3ff;margin:.6rem 0 0"></p>
+   <input id="sl" type="range" min="0" max="100" step=".2" aria-label="Rank slider" style="accent-color:var(--br)">
+   <label class="flex items-center gap-2 sm mu"><input id="pwd" type="checkbox" style="accent-color:var(--br)"> I have a PwD certificate</label>
+   <p id="sqn" class="sm mu" style="margin:.6rem 0 0"></p>
   </div>
   <div class="stats" id="stats"></div>
  </div>
@@ -127,11 +131,11 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
  <section class="card" style="padding:1rem;margin-top:1rem"><div class="top"><div><div class="nm">Where your rank is strongest</div><div class="mu sm">Seats in reach by specialty. Tap a bar to filter the list below.</div></div><div class="mu sm xl"><i class="t0"></i>High<i class="t1"></i>Moderate<i class="t2"></i>Low</div></div><div id="xp" class="xg"></div></section>
  <div class="lay">
   <aside id="side" class="card">
-   <div><div class="mu sm mb-1">Course type</div><div id="deg" class="flex flex-wrap gap-1.5"></div></div>
-   <div><div class="mu sm mb-1">Institute type</div><div id="own" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Hospitals with only DNB seats are classified from their names, so a few may be wrong.</p></div>
-   <div><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Pick your state in the State quota panel at the top to add its seats.</p></div>
-   <div><div class="mu sm mb-1">Specialties <span id="spn"></span></div><div id="spp"></div></div>
-   <div><div class="mu sm mb-1">States <span id="stn"></span></div><div id="stp"></div></div>
+   <div hidden><div class="mu sm mb-1">Course type</div><div id="deg" class="flex flex-wrap gap-1.5"></div></div>
+   <div hidden><div class="mu sm mb-1">Institute type</div><div id="own" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Hospitals with only DNB seats are classified from their names, so a few may be wrong.</p></div>
+   <div hidden><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Pick your state in the State quota panel at the top to add its seats.</p></div>
+   <div hidden><div class="mu sm mb-1">Specialties <span id="spn"></span></div><div id="spp"></div></div>
+   <div hidden><div class="mu sm mb-1">States <span id="stn"></span></div><div id="stp"></div></div>
    <label class="flex items-center justify-between gap-3 text-sm"><span>Show only high-chance seats</span><input id="safe" type="checkbox" class="sw"></label>
    <label class="flex items-center justify-between gap-3 text-sm"><span>Include unlikely seats</span><input id="unl" type="checkbox" class="sw"></label>
    <label class="flex items-center justify-between gap-3 text-sm"><span>Assume cutoffs loosen again (+12%)</span><input id="drift" type="checkbox" class="sw"></label>
@@ -174,12 +178,12 @@ const R=D.rows.map((r,id)=>{const I=D.inst[r[0]],C=D.course[r[1]],cr=[r[5],r[8],
 const SP=[...new Set(R.map(x=>x.sp))].sort(),ST=[...new Set(R.map(x=>x.st))].sort();
 let F=new Set();try{F=new Set(JSON.parse(localStorage.getItem('nps')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',sq:'',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',sq:'',qv:'all',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
 let S=init();
-try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r'))S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));if(u.get('h')==='1'||u.get('sq')==='Haryana'){S.sq='Haryana';S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
-const STATES=[{name:'Haryana',pref:'Haryana',note:'Adds Haryana state-quota seats from the 2025-26 Haryana PG counselling (Rounds 1 to 3). Tick IS or IP if they apply to you.'}];
-function setSq(v){S.sq=v;S.hr=v==='Haryana';if(S.hr){S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}else{S.quotas.delete('Haryana State');S.is=S.ip=false}if(!cts().includes(S.cat))S.cat='Open';S.n=30}
-const sqNote=()=>{const s=STATES.find(x=>x.name===S.sq);return s?s.note:'Showing all-India, DNB, deemed and central seats. Pick your state to add its state-quota seats.'};
+try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r'))S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));if(u.get('h')==='1'||u.get('sq')==='Haryana'){S.sq='Haryana';S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas=new Set(['Haryana State','Haryana Mgmt'])}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
+const STATES=[{name:'Haryana',pref:'Haryana',note:'Haryana state counselling seats from 2025-26 (Rounds 1 to 3). Choose BCA, BCB or SCD as your category, and IS or IP under special quota if they apply to you.'}];
+function setSq(v){S.sq=v;S.hr=v==='Haryana';S.qv='all';S.is=S.ip=false;applyQ();if(!cts().includes(S.cat))S.cat='Open';S.n=30}
+const sqNote=()=>{const s=STATES.find(x=>x.name===S.sq);return s?s.note:'All India counselling: AIQ, DNB, deemed and central university seats. Choose Haryana State Counselling to see Haryana state-quota seats.'};
 const cts=()=>S.hr?['Open','EWS','SC','BCA','BCB','SCD']:CT;
 const hok=x=>{if(!x||!x.qr.startsWith('Haryana State'))return true;if(!S.hr)return false;const f=x.qr.slice(14);return(!f.includes('IS')||S.is)&&(!f.includes('IP')||S.ip)};
 const seat=(c,x)=>{const pw=c.endsWith('PwD'),b=c.replace(' PwD','');return hok(x)&&(!pw||S.pwd)&&(b==='Open'||b===S.cat)};
@@ -221,8 +225,8 @@ function picker(el,items,set){el.innerHTML='<input class="in mb-2" placeholder="
 function chips(el,items,on,fn){el.innerHTML=items.map(x=>`<button class="chip ${on(x)?'on':''}" data-v="${x}">${lb(x)}</button>`).join('');el.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;fn(v.dataset.v);S.n=30;chips(el,items,on,fn);go()}}
 const lg=v=>Math.round(Math.exp(v/100*Math.log(250000)));
 function ui(){
- $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;$('#sqs').value=S.sq;$('#is').checked=S.is;$('#ip').checked=S.ip;$('#sqx').hidden=!S.hr;$('#sqn').textContent=sqNote();$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
- chips($('#cat'),cts(),x=>S.cat===x,x=>S.cat=x);chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#own'),['All','Government','Private'],x=>S.own===x,x=>S.own=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
+ $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;fm2();$('#sqn').textContent=sqNote();$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
+ chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#own'),['All','Government','Private'],x=>S.own===x,x=>S.own=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
  picker($('#spp'),SP,S.sp);picker($('#stp'),ST,S.st);go()}
 const m=D.meta;
 $('#stats').innerHTML=`<div><b>${fm(m.inst)}</b><span>institutes</span></div><div><b>${fm(m.combos)}</b><span>seat categories</span></div><div><b>${m.spn}</b><span>specialties</span></div><div><b>6 rounds</b><span>from 2024 and 2025</span></div>`;
@@ -234,8 +238,7 @@ $('#meta').innerHTML=`<p>Rows read from the PDFs (lines parsed / seat allotments
 $('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));$('#sl').value=Math.log(S.air)/Math.log(250000)*100;S.n=30;go()};
 $('#sl').oninput=e=>{S.air=lg(+e.target.value);$('#air').value=S.air;S.n=30;go()};
 $('#pwd').onchange=e=>{S.pwd=e.target.checked;go()};
-$('#sqs').onchange=e=>{setSq(e.target.value);ui()};
-$('#is').onchange=e=>{S.is=e.target.checked;S.n=30;go()};$('#ip').onchange=e=>{S.ip=e.target.checked;S.n=30;go()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
+$('#sqs').onchange=e=>{setSq(e.target.value);ui()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
 $('#q').oninput=e=>{S.q=e.target.value;S.n=30;go()};$('#srt').onchange=e=>{S.k=e.target.value;S.d=1;go()};
 $('#dir').onclick=()=>{S.d*=-1;go()};$('#more').onclick=()=>{S.n+=60;go()};$('#rst').onclick=()=>{S=init();ui()};
 $('#favb').onclick=()=>{S.fav=!S.fav;S.n=30;go()};
@@ -263,7 +266,7 @@ $('#res').addEventListener('click',e=>{const b=e.target.closest('.trb');if(!b)re
 $('#shr').onclick=async e=>{try{await navigator.clipboard.writeText(location.href);e.target.textContent='Link copied'}catch(_){prompt('Copy this link',location.href)}setTimeout(()=>e.target.textContent='Share view',1600)};
 $('#th').onclick=()=>{const r=document.documentElement,d=r.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');r.dataset.theme=d==='dark'?'light':'dark'};
 $('#mup').onclick=()=>scrollTo({top:0,behavior:'smooth'});
-try{new IntersectionObserver(([e])=>$('#mini').classList.toggle('show',!e.isIntersecting&&isHome())).observe(document.querySelector('.rp'))}catch(e){}
+try{new IntersectionObserver(([e])=>$('#mini').classList.toggle('show',!e.isIntersecting&&isHome())).observe(document.querySelector('.fm'))}catch(e){}
 const PG=$('#v-page'),HM=$('#v-home'),TRk={'MD/MS':1,DNB:2,Diploma:3};
 const badge=()=>{const b=document.querySelector('#nav a[href="#/shortlist"]');if(b)b.textContent='Shortlist ('+F.size+')'};
 const pgH=(t,s)=>`<h1 class="nm" style="font-size:1.5rem;margin:1rem 0 .3rem">${t}</h1><p class="mu sm" style="margin:0 0 1rem">${s}</p>`;
@@ -307,6 +310,25 @@ function route(){if(PK!==null)SCR[PK]=scrollY;const raw=location.hash,pt=raw.sta
  document.querySelectorAll('#nav a').forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#/'+k));
  if(!k){scrollTo(0,SCR[PK]||0);return}
  ({colleges:pColleges,college:pCollege,cutoffs:pCutoffs,state:pState,shortlist:pShort,about:pAbout}[k]||pColleges)(pt[1]);scrollTo(0,['colleges','cutoffs'].includes(k)?(SCR[PK]||0):0)}
+const QOPT=()=>S.hr?[['all','All Haryana quotas'],['Haryana State','State quota (government and aided)'],['Haryana Mgmt','Management quota (private colleges)']]:[['all','All quotas (AIQ, DNB, deemed, central)'],['All India','All India quota (AIQ)'],['DNB','DNB quota'],['Deemed/Paid','Deemed and paid seats'],['Central Uni','Central universities'],['NRI','NRI quota'],['Armed Forces','Armed Forces'],['Minority','Minority quota']];
+function applyQ(){const all=S.hr?['Haryana State','Haryana Mgmt']:['All India','DNB','Deemed/Paid','Central Uni'];S.quotas=new Set(S.qv==='all'||!QOPT().some(o=>o[0]===S.qv)?all:[S.qv])}
+const opts=(a,v)=>a.map(o=>{const k=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return`<option value="${esc(k)}"${k===v?' selected':''}>${esc(l)}</option>`}).join('');
+function fm2(){const one=s=>s.size===1?[...s][0]:'';
+ $('#sqs').innerHTML=opts([['','All India Counselling (AIQ)'],...STATES.map(s=>[s.name,s.name+' State Counselling'])],S.sq);
+ $('#qs').innerHTML=opts(QOPT(),S.qv);
+ $('#catS').innerHTML=opts(cts().map(c=>[c,c==='Open'?'UR / General':c]),S.cat);
+ $('#spq').innerHTML=opts([['0','None'],['is','In-service (IS)'],['ip','Institutional preference (IP)'],['both','Both IS and IP']],S.is&&S.ip?'both':S.is?'is':S.ip?'ip':'0');$('#spw').hidden=!S.hr;
+ $('#dgS').innerHTML=opts([['All','All course types'],['MD/MS','MD / MS'],['DNB','DNB'],['Diploma','Diploma and DNB diploma']],S.deg);
+ $('#spS').innerHTML=opts([['','Any course'],...SP],one(S.sp));
+ $('#owS').innerHTML=opts([['All','Government and private'],['Government','Government'],['Private','Private']],S.own);
+ $('#stS').innerHTML=opts([['','Any state'],...ST],one(S.st))}
+$('#qs').onchange=e=>{S.qv=e.target.value;applyQ();S.n=30;go()};
+$('#catS').onchange=e=>{S.cat=e.target.value;S.n=30;go()};
+$('#spq').onchange=e=>{const v=e.target.value;S.is=v==='is'||v==='both';S.ip=v==='ip'||v==='both';S.n=30;go()};
+$('#dgS').onchange=e=>{S.deg=e.target.value;S.n=30;go()};
+$('#spS').onchange=e=>{S.sp.clear();if(e.target.value)S.sp.add(e.target.value);S.n=30;go()};
+$('#owS').onchange=e=>{S.own=e.target.value;S.n=30;go()};
+$('#stS').onchange=e=>{S.st.clear();if(e.target.value)S.st.add(e.target.value);S.n=30;go()};
 $('#sqs').innerHTML='<option value="">All India only</option>'+STATES.map(s=>`<option>${esc(s.name)}</option>`).join('');
 ui();badge();route();addEventListener('hashchange',route);
 </script>
