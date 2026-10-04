@@ -96,7 +96,7 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
 </style>
 </head>
 <body>
-<nav id="nav" class="navb" aria-label="Main"><a href="#/" class="on">Predictor</a><a href="#/colleges">Colleges</a><a href="#/cutoffs">Cutoffs</a><a href="#/shortlist">Shortlist (0)</a><a href="#/about">About</a></nav>
+<nav id="nav" class="navb" aria-label="Main"><a href="#/" class="on">Predictor</a><a href="#/colleges">Colleges</a><a href="#/cutoffs">Cutoffs</a><a href="#/state">State quota</a><a href="#/shortlist">Shortlist (0)</a><a href="#/about">About</a></nav>
 <div id="v-home">
 <div id="mini"><b id="mr"></b><span id="mt"></span><button id="mup" class="btn">Change rank</button></div>
 <section class="hero">
@@ -109,8 +109,15 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
    <div class="flex items-end gap-4 flex-wrap"><input id="air" class="big" type="number" inputmode="numeric" min="1" max="300000"><div id="cat" class="flex flex-wrap gap-1.5 pb-1"></div></div>
    <input id="sl" type="range" min="0" max="100" step=".2" aria-label="Rank slider">
    <label class="flex items-center gap-2 sm" style="color:#c9d3ff"><input id="pwd" type="checkbox" style="accent-color:var(--sun)"> I have a PwD certificate</label>
-   <label class="flex items-center gap-2 sm" style="color:#c9d3ff"><input id="hr" type="checkbox" style="accent-color:var(--sun)"> I am a Haryana domicile candidate (adds Haryana state quota)</label>
-   <div id="hrx" class="flex flex-wrap gap-x-4 gap-y-1 sm" style="color:#c9d3ff;margin:.3rem 0 0 1.4rem" hidden><label class="flex items-center gap-2"><input id="is" type="checkbox" style="accent-color:var(--sun)"> In-service candidate (IS)</label><label class="flex items-center gap-2"><input id="ip" type="checkbox" style="accent-color:var(--sun)"> Institutional preference (IP)</label></div>
+  </div>
+  <div class="rp" id="sq" style="margin-top:.8rem">
+   <div class="flex flex-wrap items-end gap-x-5 gap-y-3">
+    <div style="min-width:12rem"><label class="sm" style="color:#c9d3ff;display:block;margin-bottom:.3rem" for="sqs">State quota (state counselling)</label><select id="sqs" class="in"></select></div>
+    <div id="sqx" class="flex flex-wrap gap-x-5 gap-y-2 sm" style="color:#fff;padding-bottom:.55rem" hidden>
+     <label class="flex items-center gap-2"><input id="is" type="checkbox" style="accent-color:var(--sun)"> In-service candidate (IS)</label>
+     <label class="flex items-center gap-2"><input id="ip" type="checkbox" style="accent-color:var(--sun)"> Institutional preference (IP)</label></div>
+   </div>
+   <p id="sqn" class="sm" style="color:#c9d3ff;margin:.6rem 0 0"></p>
   </div>
   <div class="stats" id="stats"></div>
  </div>
@@ -122,7 +129,7 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
   <aside id="side" class="card">
    <div><div class="mu sm mb-1">Course type</div><div id="deg" class="flex flex-wrap gap-1.5"></div></div>
    <div><div class="mu sm mb-1">Institute type</div><div id="own" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Hospitals with only DNB seats are classified from their names, so a few may be wrong.</p></div>
-   <div><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Haryana state quota is included. Tick the Haryana box in the rank panel.</p></div>
+   <div><div class="mu sm mb-1">Quota</div><div id="quo" class="flex flex-wrap gap-1.5"></div><p class="mu sm mt-1">Pick your state in the State quota panel at the top to add its seats.</p></div>
    <div><div class="mu sm mb-1">Specialties <span id="spn"></span></div><div id="spp"></div></div>
    <div><div class="mu sm mb-1">States <span id="stn"></span></div><div id="stp"></div></div>
    <label class="flex items-center justify-between gap-3 text-sm"><span>Show only high-chance seats</span><input id="safe" type="checkbox" class="sw"></label>
@@ -167,9 +174,12 @@ const R=D.rows.map((r,id)=>{const I=D.inst[r[0]],C=D.course[r[1]],cr=[r[5],r[8],
 const SP=[...new Set(R.map(x=>x.sp))].sort(),ST=[...new Set(R.map(x=>x.st))].sort();
 let F=new Set();try{F=new Set(JSON.parse(localStorage.getItem('nps')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',sq:'',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
 let S=init();
-try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r'))S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));if(u.get('h')==='1'){S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
+try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r'))S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));if(u.get('h')==='1'||u.get('sq')==='Haryana'){S.sq='Haryana';S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
+const STATES=[{name:'Haryana',pref:'Haryana',note:'Adds Haryana state-quota seats from the 2025-26 Haryana PG counselling (Rounds 1 to 3). Tick IS or IP if they apply to you.'}];
+function setSq(v){S.sq=v;S.hr=v==='Haryana';if(S.hr){S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}else{S.quotas.delete('Haryana State');S.is=S.ip=false}if(!cts().includes(S.cat))S.cat='Open';S.n=30}
+const sqNote=()=>{const s=STATES.find(x=>x.name===S.sq);return s?s.note:'Showing all-India, DNB, deemed and central seats. Pick your state to add its state-quota seats.'};
 const cts=()=>S.hr?['Open','EWS','SC','BCA','BCB','SCD']:CT;
 const hok=x=>{if(!x||!x.qr.startsWith('Haryana State'))return true;if(!S.hr)return false;const f=x.qr.slice(14);return(!f.includes('IS')||S.is)&&(!f.includes('IP')||S.ip)};
 const seat=(c,x)=>{const pw=c.endsWith('PwD'),b=c.replace(' PwD','');return hok(x)&&(!pw||S.pwd)&&(b==='Open'||b===S.cat)};
@@ -197,7 +207,7 @@ function go(){
   <div class="best"><div class="mu sm">Best available institute</div>${best?`<div class="nm truncate">${esc(best.i)}</div><div class="mu sm truncate">${esc(best.cn)}, closing rank ${fm(best.CR)}</div>`:'<div class="nm">Nothing in reach yet</div>'}</div></div>
   <div class="bar">${n.map((v,t)=>`<u class="t${t}" style="width:${v/all*100}%"></u>`).join('')}</div>
   <div class="leg">${TL.map((l,t)=>`<button class="lg t${t} ${s.tier===t?'on':''}" data-t="${t}" aria-pressed="${s.tier===t}"><i></i>${l}<b>${fm(n[t])}</b></button>`).join('')}</div>`;
- cnt($('#tn'),tot);explore();mini(n);try{if(isHome())history.replaceState(null,'','#/?'+new URLSearchParams({r:S.air,c:S.cat,t:S.tier,o:S.own,d:S.deg,h:S.hr?1:0,is:S.is?1:0,ip:S.ip?1:0}))}catch(e){}
+ cnt($('#tn'),tot);explore();mini(n);try{if(isHome())history.replaceState(null,'','#/?'+new URLSearchParams({r:S.air,c:S.cat,t:S.tier,o:S.own,d:S.deg,sq:S.sq,is:S.is?1:0,ip:S.ip?1:0}))}catch(e){}
  let V=L.filter(x=>s.fav?F.has(x.id):s.tier>=0?x.t===s.tier:s.safe?x.t===0:s.unl||x.t<3);
  const TR={'MD/MS':1,DNB:2,Diploma:3},f={type:(a,b)=>TR[a.deg]-TR[b.deg]||a.CR-b.CR,cr:(a,b)=>a.CR-b.CR,name:(a,b)=>a.i.localeCompare(b.i)||a.CR-b.CR,chance:(a,b)=>b.p-a.p||a.CR-b.CR}[s.k];
  V.sort((a,b)=>f(a,b)*s.d);
@@ -211,7 +221,7 @@ function picker(el,items,set){el.innerHTML='<input class="in mb-2" placeholder="
 function chips(el,items,on,fn){el.innerHTML=items.map(x=>`<button class="chip ${on(x)?'on':''}" data-v="${x}">${lb(x)}</button>`).join('');el.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;fn(v.dataset.v);S.n=30;chips(el,items,on,fn);go()}}
 const lg=v=>Math.round(Math.exp(v/100*Math.log(250000)));
 function ui(){
- $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;$('#hr').checked=S.hr;$('#is').checked=S.is;$('#ip').checked=S.ip;$('#hrx').hidden=!S.hr;$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
+ $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;$('#sqs').value=S.sq;$('#is').checked=S.is;$('#ip').checked=S.ip;$('#sqx').hidden=!S.hr;$('#sqn').textContent=sqNote();$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
  chips($('#cat'),cts(),x=>S.cat===x,x=>S.cat=x);chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#own'),['All','Government','Private'],x=>S.own===x,x=>S.own=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
  picker($('#spp'),SP,S.sp);picker($('#stp'),ST,S.st);go()}
 const m=D.meta;
@@ -224,7 +234,7 @@ $('#meta').innerHTML=`<p>Rows read from the PDFs (lines parsed / seat allotments
 $('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));$('#sl').value=Math.log(S.air)/Math.log(250000)*100;S.n=30;go()};
 $('#sl').oninput=e=>{S.air=lg(+e.target.value);$('#air').value=S.air;S.n=30;go()};
 $('#pwd').onchange=e=>{S.pwd=e.target.checked;go()};
-$('#hr').onchange=e=>{S.hr=e.target.checked;if(S.hr){S.quotas.add('Haryana State');S.quotas.add('Haryana Mgmt')}else{S.quotas.delete('Haryana State');S.is=S.ip=false}if(!cts().includes(S.cat))S.cat='Open';S.n=30;ui()};
+$('#sqs').onchange=e=>{setSq(e.target.value);ui()};
 $('#is').onchange=e=>{S.is=e.target.checked;S.n=30;go()};$('#ip').onchange=e=>{S.ip=e.target.checked;S.n=30;go()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
 $('#q').oninput=e=>{S.q=e.target.value;S.n=30;go()};$('#srt').onchange=e=>{S.k=e.target.value;S.d=1;go()};
 $('#dir').onclick=()=>{S.d*=-1;go()};$('#more').onclick=()=>{S.n+=60;go()};$('#rst').onclick=()=>{S=init();ui()};
@@ -282,6 +292,11 @@ function pCutoffs(){const sel=(id,a,v)=>`<select id="${id}" class="in" style="wi
 function pShort(){const L=[...F].map(id=>R[id]).filter(Boolean).map(chn).sort((a,b)=>a.CR-b.CR);
  PG.innerHTML=pgH('My shortlist',`Seats you starred, with chances for AIR ${fm(S.air)}.`)+(L.length?`<div class="tb"><button id="sc" class="btn">Copy list</button><button id="sx" class="btn">Clear all</button></div>`+L.map(card).join(''):`<div class="card p-8 mu text-center">Nothing saved yet. Tap ★ on a seat in the <a href="#/" style="color:var(--br)">predictor</a> or on a college page.</div>`);
  if(L.length){$('#sc').onclick=async e=>{const t=L.map((x,i)=>`${i+1}. ${x.i} (${x.st}), ${x.cn}, ${x.qr}, ${x.cat}, closing rank ${x.CR}`).join('\n');try{await navigator.clipboard.writeText(t);e.target.textContent='Copied'}catch(_){prompt('Copy your shortlist',t)}setTimeout(()=>e.target.textContent='Copy list',1500)};$('#sx').onclick=()=>{F.clear();sv();pShort();badge()}}}
+function pState(){const st=STATES.find(x=>x.name===S.sq)||STATES[0],L=inst().map(e=>({e,rs:e.rows.filter(x=>x.qr.startsWith(st.pref))})).filter(o=>o.rs.length).sort((a,b)=>a.e.i.localeCompare(b.e.i)),tot=L.reduce((a,o)=>a+o.rs.length,0);
+ PG.innerHTML=pgH('State quota and state counselling','Pick a state to add its own counselling seats to your predictions. More states can be added later.')+`<div class="card" style="padding:1rem;margin-bottom:1rem"><div class="tb"><select id="pst" class="in" style="width:auto" aria-label="State">${STATES.map(s=>`<option${s.name===st.name?' selected':''}>${esc(s.name)}</option>`).join('')}</select></div><p class="mu sm" style="margin:.4rem 0 .8rem">${esc(st.note)}</p><p style="margin:0 0 .8rem"><b>${fm(L.length)}</b> institutes, <b>${fm(tot)}</b> seat categories.</p><div class="tb" style="margin:0"><button id="pu" class="btn on">Use ${esc(st.name)} in my predictions</button><button id="pk" class="btn">See ${esc(st.name)} cutoffs</button></div></div><div id="pl"></div>`;
+ $('#pl').innerHTML=L.map(o=>`<a class="card rc" href="#/college/${o.e.ii}" style="grid-template-columns:1fr auto;text-decoration:none;color:inherit"><div><div class="nm">${esc(o.e.i)}</div><div class="mu sm">${esc(o.e.ad||'')}</div><div class="tg"><span>${o.e.own}</span><span>${o.rs.length} state seat categories</span></div></div><div class="mu sm" style="text-align:right">Best closing rank<br><b style="color:var(--ink);font-size:1rem">${fm(Math.min(...o.rs.map(x=>x.CR)))}</b></div></a>`).join('');
+ $('#pu').onclick=()=>{setSq(st.name);ui();location.hash='#/'};
+ $('#pk').onclick=()=>{Object.assign(KF,{kq:st.pref+' State',ks:'General Medicine',kd:'All',kc:'UR',ko:'All'});location.hash='#/cutoffs'}}
 function pAbout(){PG.innerHTML=pgH('About this tool','An unofficial predictor built from the public MCC seat allotment lists for 2024 and 2025.')+`<div class="card p-4 mu text-sm" style="padding:1rem;line-height:1.6">${$('#meta').innerHTML}<p>Limits: the lists cover MCC counselling only, so other states' quotas and a marks-to-rank converter are not included. Always confirm with official notices before filling choices.</p></div>`}
 PG.addEventListener('click',e=>{const f=e.target.closest('[data-f]');if(f){const k=+f.dataset.f;F.has(k)?F.delete(k):F.add(k);sv();f.classList.toggle('on',F.has(k));badge();return}
  const b=e.target.closest('.trb');if(!b)return;const r=b.closest('tr');if(r){const s=r.nextElementSibling;s.hidden=!s.hidden;if(!s.hidden)s.firstChild.innerHTML=spark(R[+b.dataset.x]);return}
@@ -291,7 +306,8 @@ function route(){if(PK!==null)SCR[PK]=scrollY;const raw=location.hash,pt=raw.sta
  HM.hidden=!!k;PG.hidden=!k;$('#mini').classList.remove('show');
  document.querySelectorAll('#nav a').forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#/'+k));
  if(!k){scrollTo(0,SCR[PK]||0);return}
- ({colleges:pColleges,college:pCollege,cutoffs:pCutoffs,shortlist:pShort,about:pAbout}[k]||pColleges)(pt[1]);scrollTo(0,['colleges','cutoffs'].includes(k)?(SCR[PK]||0):0)}
+ ({colleges:pColleges,college:pCollege,cutoffs:pCutoffs,state:pState,shortlist:pShort,about:pAbout}[k]||pColleges)(pt[1]);scrollTo(0,['colleges','cutoffs'].includes(k)?(SCR[PK]||0):0)}
+$('#sqs').innerHTML='<option value="">All India only</option>'+STATES.map(s=>`<option>${esc(s.name)}</option>`).join('');
 ui();badge();route();addEventListener('hashchange',route);
 </script>
 </body>
