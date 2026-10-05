@@ -121,11 +121,13 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
    </div>
    <label class="flex items-center gap-2 sm mu"><input id="pwd" type="checkbox" style="accent-color:var(--br)"> I have a PwD certificate</label>
    <p id="sqn" class="sm mu" style="margin:.6rem 0 0"></p>
+   <button id="pred" class="btn on w-full" style="margin-top:.9rem;padding:.85rem;font-size:1rem;font-weight:700">Predict my colleges</button>
+   <p id="dirty" class="sm" style="margin:.5rem 0 0;color:var(--go)" hidden>You changed your details. Tap Predict my colleges to update the list.</p>
   </div>
   <div class="stats" id="stats"></div>
  </div>
 </section>
-<div class="wrap">
+<div class="wrap" id="out" hidden>
  <section id="sum" class="card" aria-live="polite"></section>
  <section class="card" style="padding:1rem;margin-top:1rem"><div class="top"><div><div class="nm">Where your rank is strongest</div><div class="mu sm">Seats in reach by specialty. Tap a bar to filter the list below.</div></div><div class="mu sm xl"><i class="t0"></i>High<i class="t1"></i>Moderate<i class="t2"></i>Low</div></div><div id="xp" class="xg"></div></section>
  <div class="lay">
@@ -177,9 +179,9 @@ const R=D.rows.map((r,id)=>{const I=D.inst[r[0]],C=D.course[r[1]],cr=[r[5],r[8],
 const SP=[...new Set(R.map(x=>x.sp))].sort(),ST=[...new Set(R.map(x=>x.st))].sort();
 let F=new Set();try{F=new Set(JSON.parse(localStorage.getItem('nps')||'[]'))}catch(e){}
 const sv=()=>{try{localStorage.setItem('nps',JSON.stringify([...F]))}catch(e){}};
-const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',sq:'',qv:'all',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
+const init=()=>({air:20000,cat:'Open',pwd:false,deg:'All',own:'All',shown:false,sq:'',qv:'all',hr:false,is:false,ip:false,quotas:new Set(['All India','DNB','Deemed/Paid','Central Uni']),sp:new Set(),st:new Set(),safe:false,unl:false,drift:false,tier:0,fav:false,q:'',k:'type',d:1,n:30});
 let S=init();
-try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r'))S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));if(u.get('h')==='1'||u.get('sq')==='Haryana'){S.sq='Haryana';S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas=new Set(['Haryana State','Haryana Mgmt'])}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
+try{const u=new URLSearchParams(location.hash.replace(/^#\/?/,'').split('?').pop());if(u.get('r')){S.air=Math.max(1,Math.min(300000,+u.get('r')||20000));S.shown=true}if(u.get('h')==='1'||u.get('sq')==='Haryana'){S.sq='Haryana';S.hr=true;S.is=u.get('is')==='1';S.ip=u.get('ip')==='1';S.quotas=new Set(['Haryana State','Haryana Mgmt'])}if(CT.includes(u.get('c'))||['BCA','BCB','SCD'].includes(u.get('c')))S.cat=u.get('c');if(u.has('t')&&u.get('t')!=='')S.tier=Math.max(-1,Math.min(3,+u.get('t')));if(['Government','Private'].includes(u.get('o')))S.own=u.get('o');if(DG.includes(u.get('d')))S.deg=u.get('d')}catch(e){}
 const STATES=[{name:'Haryana',pref:'Haryana',note:'Haryana state counselling seats from 2025-26 (Rounds 1 to 3). Choose BCA, BCB or SCD as your category, and IS or IP under special quota if they apply to you.'}];
 function setSq(v){S.sq=v;S.hr=v==='Haryana';S.qv='all';S.is=S.ip=false;applyQ();if(!cts().includes(S.cat))S.cat='Open';S.n=30}
 const sqNote=()=>{const s=STATES.find(x=>x.name===S.sq);return s?s.note:'All India counselling: AIQ, DNB, deemed and central university seats. Choose Haryana State Counselling to see Haryana state-quota seats.'};
@@ -200,6 +202,7 @@ function card(x){const mx=Math.max(...x.cr),d=S.air-x.CR;
  <div class="rd">${rc(x,0,mx)}${rc(x,1,mx)}${rc(x,2,mx)}</div>
  <div class="ms">${d<=0?`Your rank is <b>${fm(-d)}</b> places inside the last close (${fm(x.CR)}).`:`Your rank is <b>${fm(d)}</b> places beyond the last close (${fm(x.CR)}).`}<br>${yoy(x)}<br><button class="trb" data-x="${x.id}">Show cutoff trend</button><div class="spk"></div></div></article>`}
 function go(){
+ if(!S.shown)return;$('#out').hidden=false;$('#dirty').hidden=true;
  const s=S,q=s.q.trim().toLowerCase(),L=[],n=[0,0,0,0];
  for(const x of R){
   if(!seat(x.cat,x)||!s.quotas.has(x.q)||(s.deg!=='All'&&x.deg!==s.deg)||(s.own!=='All'&&x.own!==s.own)||(s.sp.size&&!s.sp.has(x.sp))||(s.st.size&&!s.st.has(x.st))||(q&&!x.hay.includes(q)))continue;
@@ -234,11 +237,11 @@ $('#meta').innerHTML=`<p>Rows read from the PDFs (lines parsed / seat allotments
 <p>Haryana state quota: Rounds 1, 2 and 3 of the 2025-26 Haryana PG counselling (${fm(m.hr.r1)}, ${fm(m.hr.r2)} and ${fm(m.hr.r3)} allotments used, ${m.hr.rows} seat categories). In-service (IS), institutional preference (IP) and combined IP+IS seats are kept as separate quotas and shown only to candidates who tick them. PwD-flagged, NRI and minority seats are left out. These seats have no 2024 data, so their estimates are less certain.</p>
 <p>How chances work: for every seat we take its 2025 closing rank (highest across rounds) and ask how often closing ranks landed at or beyond your rank, using how the ${fm(m.matched)} matching seats actually moved from 2024 to 2025. Seats with a single allotment and very high-ranking seats swing more, so they get wider ranges. High means at least 85%, Moderate 50 to 84%, Low 10 to 49%, Unlikely below 10%.</p>
 <p>Closing ranks rose a median ${m.bt.drift}% from 2024 to 2025. By default we do not assume that repeats. Turn on "Assume cutoffs loosen again" to include it. In a check on the 2024 to 2025 data, the error of the estimates (Brier score, lower is better) fell from ${m.bt.old} with a fixed 10% rule to ${m.bt.new} with this method, and ${m.bt.newd} when the ${m.bt.drift}% shift is included. The curves were fitted on that same data, so real accuracy on a new year will be somewhat lower.</p>`;
-$('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));S.n=30;go()};
-$('#pwd').onchange=e=>{S.pwd=e.target.checked;go()};
-$('#sqs').onchange=e=>{setSq(e.target.value);ui()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
+$('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));S.n=30;fg()};
+$('#pwd').onchange=e=>{S.pwd=e.target.checked;fg()};
+$('#sqs').onchange=e=>{setSq(e.target.value);fm2();$('#sqn').textContent=sqNote();fg()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
 $('#q').oninput=e=>{S.q=e.target.value;S.n=30;go()};$('#srt').onchange=e=>{S.k=e.target.value;S.d=1;go()};
-$('#dir').onclick=()=>{S.d*=-1;go()};$('#more').onclick=()=>{S.n+=60;go()};$('#rst').onclick=()=>{S=init();ui()};
+$('#dir').onclick=()=>{S.d*=-1;go()};$('#more').onclick=()=>{S.n+=60;go()};$('#rst').onclick=()=>{S=init();$('#out').hidden=true;ui()};
 $('#favb').onclick=()=>{S.fav=!S.fav;S.n=30;go()};
 $('#fbtn').onclick=()=>$('#side').classList.toggle('open');
 $('#sum').onclick=e=>{const b=e.target.closest('[data-t]');if(!b)return;const t=+b.dataset.t;S.tier=S.tier===t?-1:t;S.fav=false;S.n=30;go()};
@@ -311,6 +314,8 @@ function route(){if(PK!==null)SCR[PK]=scrollY;const raw=location.hash,pt=raw.sta
 const QOPT=()=>S.hr?[['all','All Haryana quotas'],['Haryana State','State quota (government and aided)'],['Haryana Mgmt','Management quota (private colleges)']]:[['all','All quotas (AIQ, DNB, deemed, central)'],['All India','All India quota (AIQ)'],['DNB','DNB quota'],['Deemed/Paid','Deemed and paid seats'],['Central Uni','Central universities'],['NRI','NRI quota'],['Armed Forces','Armed Forces'],['Minority','Minority quota']];
 function applyQ(){const all=S.hr?['Haryana State','Haryana Mgmt']:['All India','DNB','Deemed/Paid','Central Uni'];S.quotas=new Set(S.qv==='all'||!QOPT().some(o=>o[0]===S.qv)?all:[S.qv])}
 const opts=(a,v)=>a.map(o=>{const k=Array.isArray(o)?o[0]:o,l=Array.isArray(o)?o[1]:o;return`<option value="${esc(k)}"${k===v?' selected':''}>${esc(l)}</option>`}).join('');
+function fg(){if(S.shown)$('#dirty').hidden=false}
+$('#pred').onclick=()=>{if(!(S.air>0)){$('#air').focus();return}S.shown=true;S.n=30;go();try{$('#out').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}};
 function fm2(){const one=s=>s.size===1?[...s][0]:'';
  $('#sqs').innerHTML=opts([['','All India Counselling (AIQ)'],...STATES.map(s=>[s.name,s.name+' State Counselling'])],S.sq);
  $('#qs').innerHTML=opts(QOPT(),S.qv);
@@ -320,13 +325,13 @@ function fm2(){const one=s=>s.size===1?[...s][0]:'';
  $('#spS').innerHTML=opts([['','Any course'],...SP],one(S.sp));
  $('#owS').innerHTML=opts([['All','Government and private'],['Government','Government'],['Private','Private']],S.own);
  $('#stS').innerHTML=opts([['','Any state'],...ST],one(S.st))}
-$('#qs').onchange=e=>{S.qv=e.target.value;applyQ();S.n=30;go()};
-$('#catS').onchange=e=>{S.cat=e.target.value;S.n=30;go()};
-$('#spq').onchange=e=>{const v=e.target.value;S.is=v==='is'||v==='both';S.ip=v==='ip'||v==='both';S.n=30;go()};
-$('#dgS').onchange=e=>{S.deg=e.target.value;S.n=30;go()};
-$('#spS').onchange=e=>{S.sp.clear();if(e.target.value)S.sp.add(e.target.value);S.n=30;go()};
-$('#owS').onchange=e=>{S.own=e.target.value;S.n=30;go()};
-$('#stS').onchange=e=>{S.st.clear();if(e.target.value)S.st.add(e.target.value);S.n=30;go()};
+$('#qs').onchange=e=>{S.qv=e.target.value;applyQ();S.n=30;fg()};
+$('#catS').onchange=e=>{S.cat=e.target.value;S.n=30;fg()};
+$('#spq').onchange=e=>{const v=e.target.value;S.is=v==='is'||v==='both';S.ip=v==='ip'||v==='both';S.n=30;fg()};
+$('#dgS').onchange=e=>{S.deg=e.target.value;S.n=30;fg()};
+$('#spS').onchange=e=>{S.sp.clear();if(e.target.value)S.sp.add(e.target.value);S.n=30;fg()};
+$('#owS').onchange=e=>{S.own=e.target.value;S.n=30;fg()};
+$('#stS').onchange=e=>{S.st.clear();if(e.target.value)S.st.add(e.target.value);S.n=30;fg()};
 $('#sqs').innerHTML='<option value="">All India only</option>'+STATES.map(s=>`<option>${esc(s.name)}</option>`).join('');
 ui();badge();route();addEventListener('hashchange',route);
 </script>
