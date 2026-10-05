@@ -119,7 +119,6 @@ footer{padding:0 0 calc(env(safe-area-inset-bottom,0px) + 1.5rem)}
     <label class="fc"><span>Institute type</span><select id="owS" class="in"></select></label>
     <label class="fc"><span>Preferred state</span><select id="stS" class="in"></select></label>
    </div>
-   <input id="sl" type="range" min="0" max="100" step=".2" aria-label="Rank slider" style="accent-color:var(--br)">
    <label class="flex items-center gap-2 sm mu"><input id="pwd" type="checkbox" style="accent-color:var(--br)"> I have a PwD certificate</label>
    <p id="sqn" class="sm mu" style="margin:.6rem 0 0"></p>
   </div>
@@ -225,7 +224,7 @@ function picker(el,items,set){el.innerHTML='<input class="in mb-2" placeholder="
 function chips(el,items,on,fn){el.innerHTML=items.map(x=>`<button class="chip ${on(x)?'on':''}" data-v="${x}">${lb(x)}</button>`).join('');el.onclick=e=>{const v=e.target.closest('[data-v]');if(!v)return;fn(v.dataset.v);S.n=30;chips(el,items,on,fn);go()}}
 const lg=v=>Math.round(Math.exp(v/100*Math.log(250000)));
 function ui(){
- $('#air').value=S.air;$('#sl').value=Math.log(Math.max(1,S.air))/Math.log(250000)*100;$('#pwd').checked=S.pwd;fm2();$('#sqn').textContent=sqNote();$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
+ $('#air').value=S.air;$('#pwd').checked=S.pwd;fm2();$('#sqn').textContent=sqNote();$('#safe').checked=S.safe;$('#unl').checked=S.unl;$('#drift').checked=S.drift;$('#q').value=S.q;
  chips($('#deg'),DG,x=>S.deg===x,x=>S.deg=x);chips($('#own'),['All','Government','Private'],x=>S.own===x,x=>S.own=x);chips($('#quo'),QL,x=>S.quotas.has(x),x=>S.quotas.has(x)?S.quotas.delete(x):S.quotas.add(x));
  picker($('#spp'),SP,S.sp);picker($('#stp'),ST,S.st);go()}
 const m=D.meta;
@@ -235,8 +234,7 @@ $('#meta').innerHTML=`<p>Rows read from the PDFs (lines parsed / seat allotments
 <p>Haryana state quota: Rounds 1, 2 and 3 of the 2025-26 Haryana PG counselling (${fm(m.hr.r1)}, ${fm(m.hr.r2)} and ${fm(m.hr.r3)} allotments used, ${m.hr.rows} seat categories). In-service (IS), institutional preference (IP) and combined IP+IS seats are kept as separate quotas and shown only to candidates who tick them. PwD-flagged, NRI and minority seats are left out. These seats have no 2024 data, so their estimates are less certain.</p>
 <p>How chances work: for every seat we take its 2025 closing rank (highest across rounds) and ask how often closing ranks landed at or beyond your rank, using how the ${fm(m.matched)} matching seats actually moved from 2024 to 2025. Seats with a single allotment and very high-ranking seats swing more, so they get wider ranges. High means at least 85%, Moderate 50 to 84%, Low 10 to 49%, Unlikely below 10%.</p>
 <p>Closing ranks rose a median ${m.bt.drift}% from 2024 to 2025. By default we do not assume that repeats. Turn on "Assume cutoffs loosen again" to include it. In a check on the 2024 to 2025 data, the error of the estimates (Brier score, lower is better) fell from ${m.bt.old} with a fixed 10% rule to ${m.bt.new} with this method, and ${m.bt.newd} when the ${m.bt.drift}% shift is included. The curves were fitted on that same data, so real accuracy on a new year will be somewhat lower.</p>`;
-$('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));$('#sl').value=Math.log(S.air)/Math.log(250000)*100;S.n=30;go()};
-$('#sl').oninput=e=>{S.air=lg(+e.target.value);$('#air').value=S.air;S.n=30;go()};
+$('#air').oninput=e=>{S.air=Math.max(1,Math.min(300000,+e.target.value||1));S.n=30;go()};
 $('#pwd').onchange=e=>{S.pwd=e.target.checked;go()};
 $('#sqs').onchange=e=>{setSq(e.target.value);ui()};$('#safe').onchange=e=>{S.safe=e.target.checked;go()};$('#unl').onchange=e=>{S.unl=e.target.checked;go()};$('#drift').onchange=e=>{S.drift=e.target.checked;go()};
 $('#q').oninput=e=>{S.q=e.target.value;S.n=30;go()};$('#srt').onchange=e=>{S.k=e.target.value;S.d=1;go()};
